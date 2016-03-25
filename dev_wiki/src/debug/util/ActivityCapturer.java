@@ -2,7 +2,7 @@ package debug.util;
 
 import java.lang.ref.WeakReference;
 
-import android.R;
+import com.develop.wiki.R;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;

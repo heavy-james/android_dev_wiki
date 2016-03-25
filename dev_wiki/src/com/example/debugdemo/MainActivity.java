@@ -1,6 +1,6 @@
 package com.example.debugdemo;
 
-import com.example.debugdemo.R;
+import com.develop.wiki.R;
 
 import debug.util.ActivityCapturer;
 import debug.util.UIService;
