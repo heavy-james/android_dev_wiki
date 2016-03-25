@@ -45,8 +45,9 @@ public class LogUtil {
 		if (canPrint(LEVEL_VERBOSE)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
-		if(mSaveLog){
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:" + content));
+		if (mSaveLog) {
+			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
+					+ content));
 		}
 	}
 
@@ -54,8 +55,9 @@ public class LogUtil {
 		if (canPrint(LEVEL_VERBOSE)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
-		if(mSaveLog){
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:" + content));
+		if (mSaveLog) {
+			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
+					+ content));
 		}
 	}
 
@@ -63,8 +65,9 @@ public class LogUtil {
 		if (canPrint(LEVEL_VERBOSE)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
-		if(mSaveLog){
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:" + content));
+		if (mSaveLog) {
+			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
+					+ content));
 		}
 	}
 
@@ -72,8 +75,9 @@ public class LogUtil {
 		if (canPrint(LEVEL_VERBOSE)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
-		if(mSaveLog){
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:" + content));
+		if (mSaveLog) {
+			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
+					+ content));
 		}
 	}
 
@@ -81,8 +85,9 @@ public class LogUtil {
 		if (canPrint(LEVEL_VERBOSE)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
-		if(mSaveLog){
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:" + content));
+		if (mSaveLog) {
+			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
+					+ content));
 		}
 	}
 
@@ -90,10 +95,10 @@ public class LogUtil {
 		return mDebugMode || logLevel >= mLogLevel;
 	}
 
-	public static void releaseSource(){
+	public static void releaseSource() {
 		mAppTerminated = true;
 	}
-	
+
 	static class BaseInfo {
 		public String mTag = "";
 		public String mContent = "";
@@ -157,16 +162,31 @@ public class LogUtil {
 					Log.e(TAG, "行为日志：在" + mSavePath + "创建文件失败！" + e);
 				}
 			}
+			FileWriter filerWriter = null;
+			BufferedWriter bufWriter = null;
 			try {
-				FileWriter filerWriter = new FileWriter(file, true);// 后面这个参数代表是不是要接上文件中原来的数据，不进行覆盖
-				BufferedWriter bufWriter = new BufferedWriter(filerWriter);
+				filerWriter = new FileWriter(file, true);// 后面这个参数代表是不是要接上文件中原来的数据，不进行覆盖
+				bufWriter = new BufferedWriter(filerWriter);
 				bufWriter.write(text);
 				bufWriter.newLine();
-				bufWriter.close();
-				filerWriter.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} finally {
+				if (bufWriter != null) {
+					try {
+						bufWriter.close();
+					} catch (Exception e2) {
+						// TODO: handle exception
+					}
+				}
+				if (filerWriter != null) {
+					try {
+						filerWriter.close();
+					} catch (Exception e2) {
+						// TODO: handle exception
+					}
+				}
 			}
 		}
 
