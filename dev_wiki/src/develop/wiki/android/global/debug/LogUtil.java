@@ -13,13 +13,10 @@ import android.util.Log;
 
 public class LogUtil {
 	private static final String TAG = "android_dev_wiki_log";
-	private static Context mContext;
 	private static boolean mDebugMode = false;
 	private static boolean mSaveLog = false;
-	private static boolean mReportLog = false;
 	private static int mLogLevel = 1;
 	private static String mSavePath = "/sdcard/android_dev_wiki_log";
-	private static String mReportServerUrl = "";
 	private static boolean mAppTerminated = false;
 	public static final int LEVEL_VERBOSE = 0;
 	public static final int LEVEL_DEBUG = 1;
@@ -27,18 +24,16 @@ public class LogUtil {
 	public static final int LEVEL_WARN = 3;
 	public static final int LEVEL_ERROR = 4;
 
-	public static void init(Context context, int logLevel, String savePath,
-			String reportServerUrl) {
-		mContext = context;
+	public static void init(Context context, int logLevel, String savePath) {
 		mLogLevel = logLevel;
 		mSavePath = savePath;
-		mReportServerUrl = reportServerUrl;
+		Log.d(TAG, "LogUtil init level-->" + logLevel + "; savepath-->" + savePath);
 	}
 
-	public static void setMode(boolean debug, boolean saveLog, boolean reportLog) {
+	public static void setMode(boolean debug, boolean saveLog) {
 		mDebugMode = debug;
 		mSaveLog = saveLog;
-		mReportLog = reportLog;
+		Log.d(TAG, "LogUtil setMode debug-->" + debug + "; saveLog-->" + saveLog);
 	}
 
 	public static void v(String tag, String content) {
@@ -155,12 +150,16 @@ public class LogUtil {
 		public static void recordStringLog(String text) {// 新建或打开日志文件
 			File file = new File(mSavePath);
 			if (!file.exists()) {
-				file.getParentFile().mkdirs();
 				try {
+					Log.d(TAG, "recordStringLog create log file-->" + mSavePath);
 					file.createNewFile();
 				} catch (IOException e) {
 					Log.e(TAG, "行为日志：在" + mSavePath + "创建文件失败！" + e);
 				}
+			}
+			if(!file.exists()){
+				Log.d(TAG, "recordStringLog log file does not exist");
+				return;
 			}
 			FileWriter filerWriter = null;
 			BufferedWriter bufWriter = null;
@@ -236,5 +235,9 @@ public class LogUtil {
 			}
 			isWriteThreadLive = false;// 队列中的日志都写完了，关闭线程（也可以常开 要测试下）
 		}
+	}
+	
+	public static boolean saveLogMode(){
+		return mSaveLog;
 	}
 }

@@ -1,6 +1,12 @@
 package develop.wiki.android.global;
 
+import develop.wiki.android.global.debug.CrashHandler;
 import develop.wiki.android.global.debug.LogUtil;
+
+import java.io.File;
+
+import javax.mail.search.SentDateTerm;
+
 import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
@@ -17,8 +23,9 @@ public class WiKiApplication extends Application
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		LogUtil.init(this, LogUtil.LEVEL_DEBUG, "/sdcard/android_dev_wiki_log/log.txt", null);
-		LogUtil.setMode(false, true, false);
+		LogUtil.init(this, LogUtil.LEVEL_DEBUG, getExternalCacheDir().getAbsolutePath() + File.separator + "android_dev_wiki.log");
+		LogUtil.setMode(true, true);
+		//Thread.setDefaultUncaughtExceptionHandler(CrashHandler.getInstance(this));
 	}
 
 	@Override
