@@ -5,8 +5,6 @@ import develop.wiki.android.global.debug.LogUtil;
 
 import java.io.File;
 
-import javax.mail.search.SentDateTerm;
-
 import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.res.Configuration;
@@ -25,7 +23,7 @@ public class WiKiApplication extends Application
 		super.onCreate();
 		LogUtil.init(this, LogUtil.LEVEL_DEBUG, getExternalCacheDir().getAbsolutePath() + File.separator + "android_dev_wiki.log");
 		LogUtil.setMode(true, true);
-		//Thread.setDefaultUncaughtExceptionHandler(CrashHandler.getInstance(this));
+		Thread.setDefaultUncaughtExceptionHandler(CrashHandler.getInstance(this));
 	}
 
 	@Override

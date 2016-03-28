@@ -27,6 +27,7 @@ public class LogUtil {
 	public static void init(Context context, int logLevel, String savePath) {
 		mLogLevel = logLevel;
 		mSavePath = savePath;
+		Writer.deleteLogFile();
 		Log.d(TAG, "LogUtil init level-->" + logLevel + "; savepath-->" + savePath);
 	}
 
@@ -239,5 +240,9 @@ public class LogUtil {
 	
 	public static boolean saveLogMode(){
 		return mSaveLog;
+	}
+	
+	public static String getLogFileName(){
+		return mSavePath;
 	}
 }

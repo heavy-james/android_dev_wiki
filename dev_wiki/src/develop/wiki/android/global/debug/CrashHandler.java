@@ -17,7 +17,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Environment;
 import develop.wiki.android.common.network.mail.Mail;
-import develop.wiki.android.common.network.mail.MailSender;
 import develop.wiki.android.global.feedback.FeedBackUtil;
 
 public class CrashHandler implements UncaughtExceptionHandler{
@@ -67,25 +66,25 @@ public class CrashHandler implements UncaughtExceptionHandler{
     
 	@Override
 	public void uncaughtException(Thread thread, Throwable ex) {
-//		LogUtil.d(TAG, "uncaughtException-->" + LogUtil.saveLogMode());
-//		collectDeviceInfo();
-//		if(!LogUtil.saveLogMode()){
-//			LogUtil.d(TAG, "save log mode -->" + LogUtil.saveLogMode());
-//			LogUtil.setMode(false, true);
-//		}
-//		LogUtil.d(TAG, "uncaughtException getCrashInfo");
-//		String crashLogInfo = getCrashInfo(ex);
-//		LogUtil.e(TAG, "crash info --->" + crashLogInfo);
-//		LogUtil.setMode(false, false);
-//		LogUtil.d(TAG, "uncaughtException create mail");
-//		Mail mail = new Mail();
-//		mail.setUserInfo("zhanhaifei@126.com", "ZHan~2533517");
-//		mail.setServer("www.126.com", "80");
-//		mail.setMailInfo("zhanhaifei@126.com", "418349142@qq.com", "crash log", crashLogInfo, null);
-//		LogUtil.d(TAG, "uncaughtException start send mail");
-//		FeedBackUtil.feedbackByMail(mail);
-//		LogUtil.d(TAG, "uncaughtException send mail finished");
-		mDefaultHandler.uncaughtException(thread, ex);
+		final Throwable mex = ex;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				LogUtil.d(TAG, "uncaughtException-->" + LogUtil.saveLogMode());
+				collectDeviceInfo();
+				if(!LogUtil.saveLogMode()){
+					LogUtil.d(TAG, "save log mode -->" + LogUtil.saveLogMode());
+					LogUtil.setMode(true, true);
+				}
+				LogUtil.d(TAG, "uncaughtException getCrashInfo");
+				String crashLogInfo = getCrashInfo(mex);
+				LogUtil.e(TAG, "crash info --->" + crashLogInfo);
+				FeedBackUtil.feedbackByMail();
+				//mDefaultHandler.uncaughtException(thread, ex);
+			}
+		}).start();
+		System.exit(0);
 	}
 	
 	
