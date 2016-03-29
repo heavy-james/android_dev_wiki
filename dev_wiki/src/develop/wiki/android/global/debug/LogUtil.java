@@ -48,7 +48,7 @@ public class LogUtil {
 	}
 
 	public static void d(String tag, String content) {
-		if (canPrint(LEVEL_VERBOSE)) {
+		if (canPrint(LEVEL_DEBUG)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
@@ -58,7 +58,7 @@ public class LogUtil {
 	}
 
 	public static void i(String tag, String content) {
-		if (canPrint(LEVEL_VERBOSE)) {
+		if (canPrint(LEVEL_INFO)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
@@ -68,7 +68,7 @@ public class LogUtil {
 	}
 
 	public static void w(String tag, String content) {
-		if (canPrint(LEVEL_VERBOSE)) {
+		if (canPrint(LEVEL_WARN)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
@@ -78,7 +78,7 @@ public class LogUtil {
 	}
 
 	public static void e(String tag, String content) {
-		if (canPrint(LEVEL_VERBOSE)) {
+		if (canPrint(LEVEL_ERROR)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
