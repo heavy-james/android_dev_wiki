@@ -4,22 +4,22 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.gson.Gson;
 
 import android.content.Context;
+import android.os.Process;
 import android.util.Log;
 
 public class LogUtil {
 	private static final String TAG = "android_dev_wiki_log";
-	private static Context mContext;
 	private static boolean mDebugMode = false;
 	private static boolean mSaveLog = false;
-	private static boolean mReportLog = false;
 	private static int mLogLevel = 1;
 	private static String mSavePath = "/sdcard/android_dev_wiki_log";
-	private static String mReportServerUrl = "";
 	private static boolean mAppTerminated = false;
 	public static final int LEVEL_VERBOSE = 0;
 	public static final int LEVEL_DEBUG = 1;
@@ -27,18 +27,19 @@ public class LogUtil {
 	public static final int LEVEL_WARN = 3;
 	public static final int LEVEL_ERROR = 4;
 
-	public static void init(Context context, int logLevel, String savePath,
-			String reportServerUrl) {
-		mContext = context;
+	public static void init(Context context, int logLevel, String savePath) {
 		mLogLevel = logLevel;
 		mSavePath = savePath;
-		mReportServerUrl = reportServerUrl;
+		Writer.deleteLogFile();
+		Log.d(TAG, "LogUtil init level-->" + logLevel + "; savepath-->"
+				+ savePath);
 	}
 
-	public static void setMode(boolean debug, boolean saveLog, boolean reportLog) {
+	public static void setMode(boolean debug, boolean saveLog) {
 		mDebugMode = debug;
 		mSaveLog = saveLog;
-		mReportLog = reportLog;
+		Log.d(TAG, "LogUtil setMode debug-->" + debug + "; saveLog-->"
+				+ saveLog);
 	}
 
 	public static void v(String tag, String content) {
@@ -46,48 +47,48 @@ public class LogUtil {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
-					+ content));
+			Writer.recordActionInfoLog(new ActionInfo("VERBOSE", TAG, "[" + tag
+					+ "]:" + content));
 		}
 	}
 
 	public static void d(String tag, String content) {
-		if (canPrint(LEVEL_VERBOSE)) {
+		if (canPrint(LEVEL_DEBUG)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
-					+ content));
+			Writer.recordActionInfoLog(new ActionInfo("DEBUG", TAG, "[" + tag
+					+ "]:" + content));
 		}
 	}
 
 	public static void i(String tag, String content) {
-		if (canPrint(LEVEL_VERBOSE)) {
+		if (canPrint(LEVEL_INFO)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
-					+ content));
+			Writer.recordActionInfoLog(new ActionInfo("INFO", TAG, "[" + tag
+					+ "]:" + content));
 		}
 	}
 
 	public static void w(String tag, String content) {
-		if (canPrint(LEVEL_VERBOSE)) {
+		if (canPrint(LEVEL_WARN)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
-					+ content));
+			Writer.recordActionInfoLog(new ActionInfo("WARN", TAG, "[" + tag
+					+ "]:" + content));
 		}
 	}
 
 	public static void e(String tag, String content) {
-		if (canPrint(LEVEL_VERBOSE)) {
+		if (canPrint(LEVEL_ERROR)) {
 			Log.v(TAG, "[" + tag + "]:" + content);
 		}
 		if (mSaveLog) {
-			Writer.recordBaseInfoLog(new BaseInfo(TAG, "[" + tag + "]:"
-					+ content));
+			Writer.recordActionInfoLog(new ActionInfo("ERROR", TAG, "[" + tag
+					+ "]:" + content));
 		}
 	}
 
@@ -99,41 +100,31 @@ public class LogUtil {
 		mAppTerminated = true;
 	}
 
-	static class BaseInfo {
+	static class ActionInfo {
+		private static SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+		public String mLevel = "";
 		public String mTag = "";
 		public String mContent = "";
 
-		public BaseInfo(String tag, String content) {
+		public ActionInfo(String level, String tag, String content) {
+			mLevel = level;
 			mTag = tag;
 			mContent = content;
 		}
-	}
 
-	static class ActionInfo {
-		public String mTag = "";
-		public String mContent = "";
-
-		public ActionInfo(String tag, String content) {
-			mTag = tag;
-			mContent = content;
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			sb.append(mDateFormat.format(new Date()) + " ");
+			sb.append(Process.myTid() + " ");
+			sb.append(Process.myPid() + " ");
+			sb.append(mLevel + "/" + mTag + ": " + mContent);
+			return sb.toString();
 		}
 	}
 
 	static class Writer {
 
-		public static ConcurrentLinkedQueue tempQueue = new ConcurrentLinkedQueue<Object>();
-
-		/**
-		 * 记录基本信息 头
-		 * 
-		 * @param bi
-		 */
-		public static synchronized void recordBaseInfoLog(BaseInfo bi) {
-			tempQueue.add(bi);
-			if (!WriteThread.isWriteThreadLive) {// 监察写线程是否工作中，没有 则创建
-				new WriteThread().start();
-			}
-		}
+		public static ConcurrentLinkedQueue<ActionInfo> tempQueue = new ConcurrentLinkedQueue<ActionInfo>();
 
 		/**
 		 * 记录行为信息
@@ -141,7 +132,9 @@ public class LogUtil {
 		 * @param ai
 		 */
 		public static synchronized void recordActionInfoLog(ActionInfo ai) {
-			tempQueue.add(ai);
+			if(!mAppTerminated){
+				tempQueue.add(ai);
+			}
 			if (!WriteThread.isWriteThreadLive) {
 				new WriteThread().start();
 			}
@@ -155,12 +148,16 @@ public class LogUtil {
 		public static void recordStringLog(String text) {// 新建或打开日志文件
 			File file = new File(mSavePath);
 			if (!file.exists()) {
-				file.getParentFile().mkdirs();
 				try {
+					Log.d(TAG, "recordStringLog create log file-->" + mSavePath);
 					file.createNewFile();
 				} catch (IOException e) {
 					Log.e(TAG, "行为日志：在" + mSavePath + "创建文件失败！" + e);
 				}
+			}
+			if (!file.exists()) {
+				Log.d(TAG, "recordStringLog log file does not exist");
+				return;
 			}
 			FileWriter filerWriter = null;
 			BufferedWriter bufWriter = null;
@@ -225,16 +222,27 @@ public class LogUtil {
 		@Override
 		public void run() {
 			isWriteThreadLive = true;
-			Gson gson = new Gson();
 			while (!Writer.tempQueue.isEmpty()) {// 对列不空时
 				try {
 					// 写日志到SD卡
-					Writer.recordStringLog(gson.toJson(Writer.tempQueue.poll()));
+					Writer.recordStringLog(Writer.tempQueue.poll().toString());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 			isWriteThreadLive = false;// 队列中的日志都写完了，关闭线程（也可以常开 要测试下）
 		}
+	}
+
+	public static boolean saveLogMode() {
+		return mSaveLog;
+	}
+
+	public static String getLogFileName() {
+		return mSavePath;
+	}
+	
+	public static boolean isLogSaveCompleted(){
+		return !WriteThread.isWriteThreadLive;
 	}
 }
