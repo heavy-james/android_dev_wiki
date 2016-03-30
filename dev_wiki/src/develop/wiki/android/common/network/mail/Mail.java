@@ -1,6 +1,7 @@
 package develop.wiki.android.common.network.mail;
 
 import java.util.Properties;
+
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.Address;
@@ -14,8 +15,11 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import develop.wiki.android.global.debug.LogUtil;
+
 public class Mail {   
   
+	private static final String TAG = "Mail";
     private MimeMessage mimeMsg; //MIME邮件对象   
     private Session session; //邮件会话对象   
     private Properties props; //系统属性   
@@ -39,7 +43,7 @@ public class Mail {
      * @param hostName String  
      */  
     public void setSmtpHost(String hostName) {   
-        System.out.println("设置系统属性：mail.smtp.host = "+hostName);   
+        LogUtil.i(TAG, "设置系统属性：mail.smtp.host = "+hostName);   
         if(props == null)  
             props = System.getProperties(); //获得系统属性对象    
         props.put("mail.smtp.host",hostName); //设置SMTP主机   
@@ -53,7 +57,7 @@ public class Mail {
     public boolean createMimeMessage()   
     {   
         try {   
-            System.out.println("准备获取邮件会话对象！");   
+            LogUtil.i(TAG, "准备获取邮件会话对象！");   
             session = Session.getDefaultInstance(props,null); //获得邮件会话对象   
         }   
         catch(Exception e){   
@@ -61,7 +65,7 @@ public class Mail {
             return false;   
         }   
       
-        System.out.println("准备创建MIME邮件对象！");   
+        LogUtil.i(TAG, "准备创建MIME邮件对象！");   
         try {   
             mimeMsg = new MimeMessage(session); //创建MIME邮件对象   
             mp = new MimeMultipart();   
@@ -78,7 +82,7 @@ public class Mail {
      * @param need 
      */  
     public void setNeedAuth(boolean need) {   
-        System.out.println("设置smtp身份认证：mail.smtp.auth = "+need);   
+        LogUtil.i(TAG, "设置smtp身份认证：mail.smtp.auth = "+need);   
         if(props == null) props = System.getProperties();   
         if(need){   
             props.put("mail.smtp.auth","true");   
@@ -103,7 +107,7 @@ public class Mail {
      * @return 
      */  
     public boolean setSubject(String mailSubject) {   
-        System.out.println("设置邮件主题！");   
+        LogUtil.i(TAG, "设置邮件主题！");   
         try{   
             mimeMsg.setSubject(mailSubject);   
             return true;   
@@ -136,7 +140,7 @@ public class Mail {
      */   
     public boolean addFileAffix(String filename) {   
       
-        System.out.println("增加邮件附件："+filename);   
+        LogUtil.i(TAG, "增加邮件附件："+filename);   
         try{   
             BodyPart bp = new MimeBodyPart();   
             FileDataSource fileds = new FileDataSource(filename);   
@@ -157,7 +161,7 @@ public class Mail {
      * @param from String  
      */   
     public boolean setFrom(String from) {   
-        System.out.println("设置发信人！");   
+        LogUtil.i(TAG, "设置发信人！");   
         try{   
             mimeMsg.setFrom(new InternetAddress(from)); //设置发信人   
             return true;   
@@ -202,21 +206,22 @@ public class Mail {
         try{   
             mimeMsg.setContent(mp);   
             mimeMsg.saveChanges();   
-            System.out.println("正在发送邮件....");   
+            LogUtil.i(TAG, "正在发送邮件....");   
               
             Session mailSession = Session.getInstance(props,null);   
             Transport transport = mailSession.getTransport("smtp");   
             transport.connect((String)props.get("mail.smtp.host"),username,password);   
-            transport.sendMessage(mimeMsg,mimeMsg.getRecipients(Message.RecipientType.TO));   
+            transport.sendMessage(mimeMsg,mimeMsg.getRecipients(Message.RecipientType.TO)); 
             transport.sendMessage(mimeMsg,mimeMsg.getRecipients(Message.RecipientType.CC));   
             //transport.send(mimeMsg);   
               
-            System.out.println("发送邮件成功！");   
+            LogUtil.i(TAG, "发送邮件成功！");   
             transport.close();   
               
             return true;   
         } catch(Exception e) {   
-            System.err.println("邮件发送失败！"+e);   
+            System.err.println("邮件发送失败！"+ e);
+            e.printStackTrace();
             return false;   
         }   
     }   

@@ -1,7 +1,5 @@
 package develop.wiki.android.global.debug;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -15,8 +13,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
-import android.os.Environment;
-import develop.wiki.android.common.network.mail.Mail;
+import develop.wiki.android.global.GlobalActionManager;
 import develop.wiki.android.global.feedback.FeedBackUtil;
 
 public class CrashHandler implements UncaughtExceptionHandler{
@@ -26,7 +23,7 @@ public class CrashHandler implements UncaughtExceptionHandler{
     // 系统默认的UncaughtException处理类  
     private Thread.UncaughtExceptionHandler mDefaultHandler;  
     // CrashHandler实例  
-    private static CrashHandler instance = new CrashHandler();  
+    private static CrashHandler instance;  
     // 程序的Context对象  
     private Context mContext;  
     // 用来存储设备信息和异常信息  
@@ -42,7 +39,7 @@ public class CrashHandler implements UncaughtExceptionHandler{
   
     /** 获取CrashHandler实例 ,单例模式 */  
     public static synchronized CrashHandler getInstance(Context context) {  
-    	LogUtil.d(TAG, "getInstance");
+    	LogUtil.d(TAG, "CrashHandler getInstance");
     	if(instance == null){
     		instance = new CrashHandler();
     		instance.init(context);
@@ -57,8 +54,9 @@ public class CrashHandler implements UncaughtExceptionHandler{
      * @param context 
      */  
     public void init(Context context) {  
-    	LogUtil.d(TAG, "init");
+    	LogUtil.d(TAG, "CrashHandler init");
         mContext = context;  
+        collectDeviceInfo();
         // 获取系统默认的UncaughtException处理器  
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();  
     }  
@@ -66,25 +64,16 @@ public class CrashHandler implements UncaughtExceptionHandler{
     
 	@Override
 	public void uncaughtException(Thread thread, Throwable ex) {
-		final Throwable mex = ex;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				LogUtil.d(TAG, "uncaughtException-->" + LogUtil.saveLogMode());
-				collectDeviceInfo();
-				if(!LogUtil.saveLogMode()){
-					LogUtil.d(TAG, "save log mode -->" + LogUtil.saveLogMode());
-					LogUtil.setMode(true, true);
-				}
-				LogUtil.d(TAG, "uncaughtException getCrashInfo");
-				String crashLogInfo = getCrashInfo(mex);
-				LogUtil.e(TAG, "crash info --->" + crashLogInfo);
-				FeedBackUtil.feedbackByMail();
-				//mDefaultHandler.uncaughtException(thread, ex);
-			}
-		}).start();
-		System.exit(0);
+		LogUtil.d(TAG, "uncaughtException-->" + LogUtil.saveLogMode());
+		GlobalActionManager.getInstance().sendGlobalAction(GlobalActionManager.ACTION_TERMINATE_APP, null);
+		if(!LogUtil.saveLogMode()){
+			LogUtil.d(TAG, "save log mode -->" + LogUtil.saveLogMode());
+			LogUtil.setMode(true, true);
+		}
+		String crashLogInfo = getCrashInfo(ex);
+		LogUtil.e(TAG, "crash info --->" + crashLogInfo);
+		FeedBackUtil.feedbackByMail();
+		
 	}
 	
 	
@@ -95,14 +84,11 @@ public class CrashHandler implements UncaughtExceptionHandler{
      */  
     public void collectDeviceInfo() {  
     	LogUtil.d(TAG, "collectDeviceInfo");
-    	/*
+    	//*
         try {  
-        	LogUtil.d(TAG, "collectDeviceInfo get PackageInfo");
-            PackageManager pm = mContext.getPackageManager();  
-            LogUtil.d(TAG, "collectDeviceInfo getPackageManager pm--> "  + pm);
+            PackageManager pm = mContext.getApplicationContext().getPackageManager();  
             PackageInfo pi = pm.getPackageInfo(mContext.getPackageName(),  
-                    PackageManager.GET_PERMISSIONS);  
-            LogUtil.d(TAG, "collectDeviceInfo PackageInfo--> "  + pi);
+                    PackageManager.GET_ACTIVITIES);  
             if (pi != null) {  
                 String versionName = pi.versionName == null ? "null"  
                         : pi.versionName;  
@@ -113,7 +99,7 @@ public class CrashHandler implements UncaughtExceptionHandler{
         } catch (NameNotFoundException e) {  
             LogUtil.e(TAG, "an error occured when collect package info" + e.getMessage());  
         }
-        */
+        //*/
         LogUtil.d(TAG, "collectDeviceInfo version info over");
         Field[] fields = Build.class.getDeclaredFields();  
         for (Field field : fields) {  

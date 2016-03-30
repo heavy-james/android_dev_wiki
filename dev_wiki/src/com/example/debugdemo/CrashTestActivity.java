@@ -1,11 +1,8 @@
 package com.example.debugdemo;
 
-import java.io.IOException;
 
 import com.develop.wiki.R;
-
 import android.os.Bundle;
-import android.util.Log;
 import develop.wiki.android.global.BaseActivity;
 import develop.wiki.android.global.debug.LogUtil;
 
@@ -19,4 +16,11 @@ public class CrashTestActivity extends BaseActivity{
 		String[] testStrs = null;
 		String crashtest = testStrs[2];
 	}
+	
+	@Override
+	protected String getTag() {
+		// TODO Auto-generated method stub
+		return TAG;
+	}
+	
 }

@@ -1,21 +1,27 @@
 package develop.wiki.android.global;
 
+import develop.wiki.android.global.GlobalActionManager.GlobalActionListener;
+import develop.wiki.android.global.debug.LogUtil;
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import android.os.Bundle;
 
-public class BaseActivity extends Activity{
+public abstract class BaseActivity extends Activity {
+
+	private GlobalActionListener mGlobalActionListener;
 
 	@Override
-	public boolean onCreateThumbnail(Bitmap outBitmap, Canvas canvas) {
-		// TODO Auto-generated method stub
-		return super.onCreateThumbnail(outBitmap, canvas);
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mGlobalActionListener = new BaseActionListener();
+		GlobalActionManager.getInstance().addListener(getTag(), mGlobalActionListener);
 	}
 
 	@Override
 	protected void onDestroy() {
-		// TODO Auto-generated method stub
 		super.onDestroy();
+		if (mGlobalActionListener != null) {
+			GlobalActionManager.getInstance().removeListener(getTag());
+		}
 	}
 
 	@Override
@@ -47,6 +53,22 @@ public class BaseActivity extends Activity{
 		// TODO Auto-generated method stub
 		super.onStop();
 	}
-	
+
+	protected abstract String getTag();
+
+	class BaseActionListener implements GlobalActionListener {
+
+		@Override
+		public void onFinishActivty() {
+			LogUtil.d(getTag(), "onFinishActivty");
+			finish();
+		}
+
+		@Override
+		public void onTernimateApp() {
+			LogUtil.d(getTag(), "onTernimateApp");
+			finish();
+		}
+	}
 
 }

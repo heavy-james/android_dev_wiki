@@ -23,6 +23,7 @@ public class WiKiApplication extends Application
 		super.onCreate();
 		LogUtil.init(this, LogUtil.LEVEL_DEBUG, getExternalCacheDir().getAbsolutePath() + File.separator + "android_dev_wiki.log");
 		LogUtil.setMode(true, true);
+		GlobalActionManager.getInstance().init(this);
 		Thread.setDefaultUncaughtExceptionHandler(CrashHandler.getInstance(this));
 	}
 
