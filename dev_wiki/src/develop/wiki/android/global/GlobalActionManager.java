@@ -4,11 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import develop.wiki.android.global.debug.LogUtil;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.text.TextUtils;
 
 public class GlobalActionManager{
 
@@ -74,5 +70,7 @@ public class GlobalActionManager{
 			}
 		}
 	}
+	
+	native void initNativeCrashHandler();
 
 }

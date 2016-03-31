@@ -27,19 +27,15 @@ public class LogUtil {
 	public static final int LEVEL_WARN = 3;
 	public static final int LEVEL_ERROR = 4;
 
-	public static void init(Context context, int logLevel, String savePath) {
+	public static void init(Context context, int logLevel, boolean debug,
+			boolean saveLog, String savePath) {
 		mLogLevel = logLevel;
 		mSavePath = savePath;
-		Writer.deleteLogFile();
-		Log.d(TAG, "LogUtil init level-->" + logLevel + "; savepath-->"
-				+ savePath);
-	}
-
-	public static void setMode(boolean debug, boolean saveLog) {
 		mDebugMode = debug;
 		mSaveLog = saveLog;
-		Log.d(TAG, "LogUtil setMode debug-->" + debug + "; saveLog-->"
-				+ saveLog);
+		Writer.deleteLogFile();
+		Log.d(TAG, "LogUtil init level-->" + logLevel + "debug-->" + debug
+				+ "; saveLog-->" + saveLog + "; savepath-->" + savePath);
 	}
 
 	public static void v(String tag, String content) {

@@ -66,10 +66,6 @@ public class CrashHandler implements UncaughtExceptionHandler{
 	public void uncaughtException(Thread thread, Throwable ex) {
 		LogUtil.d(TAG, "uncaughtException-->" + LogUtil.saveLogMode());
 		GlobalActionManager.getInstance().sendGlobalAction(GlobalActionManager.ACTION_TERMINATE_APP, null);
-		if(!LogUtil.saveLogMode()){
-			LogUtil.d(TAG, "save log mode -->" + LogUtil.saveLogMode());
-			LogUtil.setMode(true, true);
-		}
 		String crashLogInfo = getCrashInfo(ex);
 		LogUtil.e(TAG, "crash info --->" + crashLogInfo);
 		FeedBackUtil.feedbackByMail();
@@ -142,6 +138,11 @@ public class CrashHandler implements UncaughtExceptionHandler{
         String result = writer.toString();  
         sb.append(result);  
         return sb.toString();  
-    }  
+    } 
+    
+    public static void notifyNativeCrash(){
+    	LogUtil.e(TAG, "notifyNativeCrash called");
+    	System.exit(0);
+    }
 
 }

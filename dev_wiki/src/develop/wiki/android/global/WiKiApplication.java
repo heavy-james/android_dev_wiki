@@ -12,6 +12,10 @@ import android.content.res.Configuration;
 public class WiKiApplication extends Application
 {
 
+	static {
+		System.loadLibrary("DevWiki");
+	}
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		// TODO Auto-generated method stub
@@ -21,9 +25,9 @@ public class WiKiApplication extends Application
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		LogUtil.init(this, LogUtil.LEVEL_DEBUG, getExternalCacheDir().getAbsolutePath() + File.separator + "android_dev_wiki.log");
-		LogUtil.setMode(true, true);
+		LogUtil.init(this, LogUtil.LEVEL_DEBUG, true, true, getExternalCacheDir().getAbsolutePath() + File.separator + "android_dev_wiki.log");
 		GlobalActionManager.getInstance().init(this);
+		//GlobalActionManager.getInstance().initNativeCrashHandler();
 		Thread.setDefaultUncaughtExceptionHandler(CrashHandler.getInstance(this));
 	}
 
