@@ -318,18 +318,21 @@ public class Mail {
      * @param filename 
      * @return 
      */  
-    public static boolean sendAndCc(String smtp,String from,String to,String copyto,String subject,String content,String username,String password,String filename) {  
+    public static boolean sendAndCc(String smtp,String from,String to,String copyto,String subject,String content,String username,String password,String[] filenames) {  
         Mail theMail = new Mail(smtp);  
         theMail.setNeedAuth(true); //需要验证  
           
         if(!theMail.setSubject(subject)) return false;  
-        if(!theMail.setBody(content)) return false;  
-        if(!theMail.addFileAffix(filename)) return false;   
+        if(!theMail.setBody(content)) return false;
+        for(String filename : filenames){
+        	if(filename != null){
+        		if(!theMail.addFileAffix(filename)) return false;   
+        	}
+        }
         if(!theMail.setTo(to)) return false;  
         if(!theMail.setCopyTo(copyto)) return false;  
         if(!theMail.setFrom(from)) return false;  
         theMail.setNamePass(username,password);  
-          
         if(!theMail.sendOut()) return false;  
         return true;  
     }  

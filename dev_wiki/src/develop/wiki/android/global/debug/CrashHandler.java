@@ -1,5 +1,9 @@
 package develop.wiki.android.global.debug;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -13,6 +17,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
+import android.util.Log;
 import develop.wiki.android.global.GlobalActionManager;
 import develop.wiki.android.global.feedback.FeedBackUtil;
 
@@ -142,7 +147,8 @@ public class CrashHandler implements UncaughtExceptionHandler{
     
     public static void notifyNativeCrash(){
     	LogUtil.e(TAG, "notifyNativeCrash called");
-    	System.exit(0);
+    	GlobalActionManager.getInstance().sendGlobalAction(GlobalActionManager.ACTION_TERMINATE_APP, null);
+    	FeedBackUtil.feedbackByMail();
     }
-
+    
 }

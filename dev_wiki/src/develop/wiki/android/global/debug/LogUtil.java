@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import com.google.gson.Gson;
-
 import android.content.Context;
 import android.os.Process;
 import android.util.Log;
@@ -237,6 +234,17 @@ public class LogUtil {
 	public static String getLogFileName() {
 		return mSavePath;
 	}
+	
+	public static String getANRLogFile() {
+		File file = new File("/data/anr/traces.txt");
+		if (file.exists() && file.canRead()) {
+			LogUtil.d(TAG, "getNativeCrashLog -->" + file.getPath());
+			return file.getPath();
+		}
+		LogUtil.d(TAG, "getNativeCrashLog --> null");
+		return null;
+	}
+
 	
 	public static boolean isLogSaveCompleted(){
 		return !WriteThread.isWriteThreadLive;

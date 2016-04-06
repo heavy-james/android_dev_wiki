@@ -8,13 +8,18 @@ import develop.wiki.android.global.debug.LogUtil;
 
 public class FeedBackUtil {
 	private static final String TAG = "FeedBackUtil";
+	private static boolean isMailling = false;
 	
 	public static void feedbackByMail(){
+		if(isMailling){
+			return;
+		}
 		new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				isMailling = true;
 				Thread.currentThread().setContextClassLoader(getClass().getClassLoader() );
 				MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap(); 
 				mc.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html"); 
@@ -31,20 +36,11 @@ public class FeedBackUtil {
 				String content = "this is a crash log";  
 				String username="zhanhaifei@126.com";  
 				String password="ZHan~2533517";  
-				String filename = LogUtil.getLogFileName(); 
-				while(!LogUtil.isLogSaveCompleted()){
-					LogUtil.d(TAG, "waiting logutil save log finished");
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					continue;
-				}
-				Mail.sendAndCc(smtp, from, to, copyto, subject, content, username, password, filename);
+				String[] attachedFiles = new String[]{LogUtil.getLogFileName(), LogUtil.getANRLogFile()};
+				Mail.sendAndCc(smtp, from, to, copyto, subject, content, username, password, attachedFiles);
 				LogUtil.d(TAG, "feedbackByMail send mail finished");
 				LogUtil.releaseSource();
+				isMailling = false;
 				System.exit(0);
 			}
 		}).start();

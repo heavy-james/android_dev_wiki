@@ -43,12 +43,16 @@ JNIEnv* JNI_GetEnv()
 	return env;
 }
 
+bool crashDealed = false;
 void my_sigaction(int signal, siginfo_t *info, void *reserved) {
-		jclass crashHandlerClass = JNI_GetEnv()->FindClass(
-				"develop/wiki/android/global/debug/CrashHandler");
-		jmethodID notifyNativeCrash = JNI_GetEnv()->GetStaticMethodID(crashHandlerClass,
-				"notifyNativeCrash", "()V");
-		JNI_GetEnv()->CallStaticVoidMethod(crashHandlerClass, notifyNativeCrash);
+	if (crashDealed)
+		return;
+	crashDealed = true;
+	jclass crashHandlerClass = JNI_GetEnv()->FindClass(
+			"develop/wiki/android/global/debug/CrashHandler");
+	jmethodID notifyNativeCrash = JNI_GetEnv()->GetStaticMethodID(
+			crashHandlerClass, "notifyNativeCrash", "()V");
+	JNI_GetEnv()->CallStaticVoidMethod(crashHandlerClass, notifyNativeCrash);
 }
 
 int nativeCrashHandler_onLoad() {
@@ -56,7 +60,7 @@ int nativeCrashHandler_onLoad() {
 	struct sigaction handler;
 	memset(&handler, 0, sizeof(handler));
 	handler.sa_sigaction = my_sigaction;
-	handler.sa_flags = SA_RESTART | SA_SIGINFO;
+	handler.sa_flags = SA_NOCLDWAIT| SA_SIGINFO;
 	sigemptyset(&handler.sa_mask);
 	for (int i = 0; i < handledSignalsNum; ++i) {
 		sigaction(handledSignals[i], &handler, &old_handlers[i]);
